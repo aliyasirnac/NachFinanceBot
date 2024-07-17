@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"github.com/aliyasirnac/gelirgiderbot/internal/db"
 	"time"
 
 	"github.com/aliyasirnac/gelirgiderbot/internal/loggerx"
@@ -11,11 +12,13 @@ import (
 type Client struct {
 	appToken string
 	bot      *telebot.Bot
+	db       db.Service
 }
 
-func New(appToken string) *Client {
+func New(appToken string, db db.Service) *Client {
 	return &Client{
 		appToken: appToken,
+		db:       db,
 	}
 }
 
@@ -32,7 +35,7 @@ func (c *Client) Run(ctx context.Context) error {
 	}
 
 	c.bot = b
-	Register(b)
+	Register(b, c.db)
 
 	go func() {
 		<-ctx.Done()

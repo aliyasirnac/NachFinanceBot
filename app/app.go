@@ -36,13 +36,14 @@ func (a *App) Start(ctx context.Context) error {
 		return err
 	}
 
-	err = database.AutoMigrate(&db.User{})
+	err = database.AutoMigrate(&db.User{}, &db.Goal{})
 	if err != nil {
 		return err
 	}
 
 	a.logger.Info("bot starting")
-	b := bot.New(a.cfg.App.Token)
+	svc := db.NewService(database)
+	b := bot.New(a.cfg.App.Token, svc)
 
 	defer func() {
 		if err = b.Run(ctx); err != nil {
@@ -53,7 +54,7 @@ func (a *App) Start(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) Stop(ctx context.Context) error {
+func (a *App) Stop(_ context.Context) error {
 	a.logger.Info("stopping app")
 
 	return nil
